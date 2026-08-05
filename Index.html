@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Millie's Vocabulary Trainer</title>
+    
+    <!-- Cute Desktop / Bookmark Thumbnail Icon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2228%22 fill=%22%23f43f5e%22/><text x=%2250%%22 y=%2254%%22 font-size=%2250%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22>✨</text></svg>">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2228%22 fill=%22%23f43f5e%22/><text x=%2250%%22 y=%2254%%22 font-size=%2250%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22>✨</text></svg>">
+
+    <!-- Tailwind CSS & Lucide Icons -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-rose-50 text-slate-800 min-h-screen flex flex-col justify-between select-none font-sans">
+
+    <!-- Top Navigation Bar -->
+    <header class="w-full max-w-xl mx-auto pt-6 px-4 flex justify-between items-center border-b border-rose-200 pb-4">
+        <div class="flex items-center gap-3">
+            <div class="bg-rose-500 p-2.5 rounded-2xl text-white shadow-lg shadow-rose-500/30">
+                <i data-lucide="sparkles" class="w-6 h-6"></i>
+            </div>
+            <div>
+                <h1 class="font-extrabold text-lg text-slate-900 tracking-wide">Millie's Vocab Trainer</h1>
+                <p id="sub-title" class="text-xs text-rose-600 font-bold">Section Selection</p>
+            </div>
+        </div>
+
+        <button id="home-btn" onclick="returnToSections()" class="hidden text-xs font-bold text-rose-600 bg-white px-3 py-2 rounded-xl border border-rose-200 shadow-sm flex items-center gap-1.5 transition-all hover:bg-rose-50">
+            <i data-lucide="home" class="w-4 h-4"></i> Sections
+        </button>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="w-full max-w-xl mx-auto px-4 my-auto py-6">
+
+        <!-- VIEW 1: SECTIONS SELECTOR (Home Hub) -->
+        <div id="view-sections" class="space-y-6">
+            <div class="bg-white border-2 border-rose-200 p-6 rounded-3xl shadow-sm text-center space-y-2">
+                <h2 class="text-2xl font-black text-slate-900">Choose Your Section</h2>
+                <p class="text-xs text-slate-500 font-medium">Select a section (50 words each) to practice flashcards or take a quiz!</p>
+                <div id="overall-progress" class="inline-block text-xs bg-rose-50 border border-rose-200 px-4 py-1.5 rounded-xl font-bold text-rose-600 mt-2">
+                    Mastery: 0 / 1,600 words
+                </div>
+            </div>
+
+            <!-- Sections Grid Container (32 Sections) -->
+            <div id="sections-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                <!-- Dynamically generated section buttons -->
+            </div>
+        </div>
+
+        <!-- VIEW 2: FLASHCARDS TRAINER -->
+        <div id="view-flashcards" class="hidden space-y-6">
+            <div class="flex justify-between items-center">
+                <div class="flex bg-white p-1 rounded-xl border border-rose-200 shadow-sm">
+                    <button onclick="switchMode('flashcards')" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-rose-500 text-white shadow-sm">Flashcards</button>
+                    <button onclick="switchMode('quiz1')" class="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:text-slate-900">Quiz 1</button>
+                    <button onclick="switchMode('quiz2')" class="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:text-slate-900">Quiz 2</button>
+                </div>
+                <div id="fc-counter" class="text-xs font-bold text-rose-600 bg-white px-3 py-1.5 rounded-full border border-rose-200 shadow-sm">
+                    Word 1 of 50
+                </div>
+            </div>
+
+            <!-- Clean Flashcard Container -->
+            <div class="bg-white border-2 border-rose-200 rounded-3xl p-8 shadow-xl min-h-[400px] flex flex-col justify-between">
+                <div>
+                    <div class="flex justify-between items-center mb-4">
+                        <span id="fc-badge" class="bg-rose-100 text-rose-600 text-xs font-bold px-3 py-1 rounded-xl">Section 1</span>
+                        <span class="text-xs text-slate-400 font-bold">11+ Vocabulary</span>
+                    </div>
+                    
+                    <h2 id="fc-word" class="text-4xl sm:text-5xl font-black text-slate-900 tracking-tight text-center my-6">Loading...</h2>
+                    
+                    <div class="space-y-3 bg-rose-50/50 p-4 rounded-2xl border border-rose-100">
+                        <div>
+                            <span class="text-[10px] uppercase tracking-wider font-extrabold text-slate-400 block">Meaning</span>
+                            <p id="fc-meaning" class="text-base font-bold text-slate-800"></p>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 text-xs pt-2 border-t border-rose-200/60">
+                            <div>
+                                <span class="text-[10px] uppercase tracking-wider font-extrabold text-emerald-600 block">Synonyms</span>
+                                <span id="fc-synonyms" class="font-semibold text-slate-700"></span>
+                            </div>
+                            <div>
+                                <span class="text-[10px] uppercase tracking-wider font-extrabold text-rose-600 block">Antonyms</span>
+                                <span id="fc-antonyms" class="font-semibold text-slate-700"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <p id="fc-example" class="text-xs italic text-indigo-700 bg-indigo-50 p-3 rounded-xl border border-indigo-100 font-medium text-center"></p>
+                </div>
+            </div>
+
+            <!-- Navigation Controls -->
+            <div class="grid grid-cols-2 gap-3">
+                <button onclick="prevCard()" class="bg-white hover:bg-rose-100 border border-rose-200 font-bold py-4 rounded-2xl transition-all shadow-sm active:scale-95 text-slate-700 text-sm flex items-center justify-center gap-2">
+                    <i data-lucide="arrow-left" class="w-4 h-4"></i> Previous
+                </button>
+                <button onclick="nextCard()" class="bg-rose-500 hover:bg-rose-600 font-bold py-4 rounded-2xl transition-all shadow-lg shadow-rose-500/30 active:scale-95 text-white text-sm flex items-center justify-center gap-2">
+                    Next <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- VIEW 3: QUIZ TRAINER -->
+        <div id="view-quiz" class="hidden space-y-6">
+            <div class="flex justify-between items-center">
+                <div class="flex bg-white p-1 rounded-xl border border-rose-200 shadow-sm">
+                    <button onclick="switchMode('flashcards')" class="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:text-slate-900">Flashcards</button>
+                    <button id="quiz1-tab-btn" onclick="switchMode('quiz1')" class="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:text-slate-900">Quiz 1</button>
+                    <button id="quiz2-tab-btn" onclick="switchMode('quiz2')" class="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:text-slate-900">Quiz 2</button>
+                </div>
+                <div id="quiz-counter" class="text-xs font-bold text-rose-600 bg-white px-3 py-1.5 rounded-full border border-rose-200 shadow-sm">
+                    Question 1 of 10
+                </div>
+            </div>
+
+            <!-- Quiz Card Container -->
+            <div class="bg-white border-2 border-rose-200 rounded-3xl p-8 shadow-xl space-y-6">
+                <div>
+                    <span id="quiz-badge" class="text-xs font-bold text-rose-500 uppercase tracking-wider block mb-2">Section Quiz</span>
+                    <h3 id="quiz-question" class="text-xl font-black text-slate-900 leading-snug">What is the meaning of...</h3>
+                </div>
+
+                <div id="quiz-options" class="space-y-3">
+                    <!-- Dynamic option buttons -->
+                </div>
+
+                <!-- Next Question Button for All Quizzes -->
+                <div id="quiz-next-container" class="hidden pt-2">
+                    <button onclick="advanceQuiz()" class="w-full bg-rose-500 hover:bg-rose-600 font-bold py-4 px-5 rounded-2xl transition-all shadow-lg shadow-rose-500/30 text-white text-sm flex items-center justify-center gap-2">
+                        Next Question <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // Master Vocabulary Database (32 sections of 50 words = 1,600 words)
+        const baseWords = [
+            { word: "Weak", meaning: "Not strong; lacking strength.", synonyms: "feeble, frail", antonyms: "strong, powerful", example: "After the long run, my legs felt weak." },
+            { word: "Noxious", meaning: "Harmful, poisonous, or very unpleasant.", synonyms: "toxic, harmful", antonyms: "harmless, safe", example: "The noxious fumes made everyone leave the room." },
+            { word: "Despair", meaning: "A feeling of complete hopelessness.", synonyms: "hopelessness, misery", antonyms: "hope, optimism", example: "She felt despair when she lost her favourite toy." },
+            { word: "Retreat", meaning: "To move back or withdraw.", synonyms: "withdraw, pull back", antonyms: "advance, approach", example: "The army decided to retreat from the mountain." },
+            { word: "Eject", meaning: "To force something out or throw it out.", synonyms: "expel, remove", antonyms: "insert, admit", example: "The pilot had to eject from the plane safely." },
+            { word: "Consummation", meaning: "The completion or fulfilment of something.", synonyms: "completion, fulfilment", antonyms: "beginning, start", example: "Winning the trophy was the consummation of years of practice." },
+            { word: "Genuine", meaning: "Real and not fake.", synonyms: "authentic, true", antonyms: "fake, artificial", example: "His genuine smile showed he was proud of her." },
+            { word: "Disperse", meaning: "To scatter and spread out.", synonyms: "scatter, spread", antonyms: "gather, collect", example: "The teacher asked the crowd to disperse quietly." },
+            { word: "Expedite", meaning: "To make something happen faster.", synonyms: "speed up, hasten", antonyms: "delay, slow", example: "We must expedite the delivery before the deadline." },
+            { word: "Virile", meaning: "Strong and full of energy (often used about men).", synonyms: "vigorous, strong", antonyms: "weak, feeble", example: "He sounded virile and confident during the speech." },
+            { word: "Explicit", meaning: "Very clear and detailed; not vague.", synonyms: "clear, definite", antonyms: "implicit, unclear", example: "The instructions were explicit, so no one got confused." },
+            { word: "Efflux", meaning: "An outflow of something (like liquid).", synonyms: "outflow, discharge", antonyms: "influx, inflow", example: "There was an efflux of water after the dam opened." },
+            { word: "Output", meaning: "The amount produced; what comes out.", synonyms: "production, yield", antonyms: "input", example: "The factory increased its output this month." },
+            { word: "Easy", meaning: "Not difficult; simple to do.", synonyms: "simple, effortless", antonyms: "hard, difficult", example: "The first question was easy, so she smiled." },
+            { word: "Fault", meaning: "A mistake or weakness; something wrong.", synonyms: "error, flaw", antonyms: "strength, merit", example: "It was my fault that we were late." },
+            { word: "Sharp", meaning: "Having a thin cutting edge; also clever.", synonyms: "keen, pointed", antonyms: "blunt, dull", example: "Be careful—this knife is very sharp." },
+            { word: "Timid", meaning: "Shy and lacking confidence.", synonyms: "shy, nervous", antonyms: "bold, brave", example: "The timid kitten hid behind the sofa." },
+            { word: "Cowardice", meaning: "Lack of bravery; fear of danger.", synonyms: "fearfulness, timidity", antonyms: "bravery, courage", example: "He showed cowardice by refusing to help at all." },
+            { word: "Dull", meaning: "Not bright or interesting; not sharp.", synonyms: "boring, dim", antonyms: "bright, exciting", example: "The sky looked dull on the rainy day." },
+            { word: "Noble", meaning: "Honourable and morally good.", synonyms: "honourable, virtuous", antonyms: "mean, selfish", example: "It was a noble decision to tell the truth." },
+            { word: "Demolish", meaning: "To knock down or destroy a building.", synonyms: "destroy, tear down", antonyms: "build, construct", example: "They will demolish the old house next week." },
+            { word: "Freedom", meaning: "The state of being free; liberty.", synonyms: "liberty, independence", antonyms: "captivity, slavery", example: "The bird flew away in freedom." },
+            { word: "Release", meaning: "To set free or let go.", synonyms: "free, let go", antonyms: "capture, hold", example: "The zoo decided to release the animals into the wild." },
+            { word: "Reckless", meaning: "Careless and taking risks.", synonyms: "careless, rash", antonyms: "cautious, careful", example: "Riding his bike with no hands was reckless." },
+            { word: "Unknown", meaning: "Not known or familiar.", synonyms: "unfamiliar, mysterious", antonyms: "known, familiar", example: "The explorer travelled into unknown lands." },
+            { word: "Promote", meaning: "To support or encourage; to raise in rank.", synonyms: "encourage, advance", antonyms: "hinder, demote", example: "The coach will promote teamwork during practice." },
+            { word: "Lower", meaning: "To bring down to a smaller amount or level.", synonyms: "reduce, decrease", antonyms: "raise, increase", example: "Please lower your voice in the library." },
+            { word: "Reveal", meaning: "To show something that was hidden.", synonyms: "show, uncover", antonyms: "conceal, hide", example: "She revealed the surprise party at the last minute." },
+            { word: "Modest", meaning: "Not boastful; not too large or expensive.", synonyms: "humble, simple", antonyms: "arrogant, showy", example: "He gave a modest answer and shrugged." },
+            { word: "Expand", meaning: "To become bigger or spread out.", synonyms: "increase, enlarge", antonyms: "contract, shrink", example: "The balloon began to expand as it filled with air." },
+            { word: "Bashful", meaning: "Shy and easily embarrassed.", synonyms: "shy, timid", antonyms: "confident, bold", example: "She felt bashful when everyone clapped for her." },
+            { word: "Fickle", meaning: "Changing quickly and often; not steady.", synonyms: "changeable, unsteady", antonyms: "steady, loyal", example: "The weather is fickle in spring." },
+            { word: "Plentiful", meaning: "A lot of something; abundant.", synonyms: "abundant, ample", antonyms: "scarce, limited", example: "There was plentiful food at the picnic." },
+            { word: "Flourish", meaning: "To grow well; to do very well.", synonyms: "thrive, prosper", antonyms: "decline, fail", example: "The plants will flourish in the sunshine." },
+            { word: "Make", meaning: "To create or produce something.", synonyms: "create, form", antonyms: "destroy, ruin", example: "She helped make a model castle from cardboard." },
+            { word: "Apathy", meaning: "Lack of interest or feeling.", synonyms: "indifference, boredom", antonyms: "enthusiasm, concern", example: "His apathy towards homework worried his parents." },
+            { word: "Serene", meaning: "Calm, peaceful, and quiet.", synonyms: "calm, peaceful", antonyms: "stormy, agitated", example: "The lake looked serene at sunrise." },
+            { word: "Sober", meaning: "Not drunk; serious and sensible.", synonyms: "serious, sensible", antonyms: "drunk, carefree", example: "He gave a sober warning about the storm." },
+            { word: "Giant", meaning: "Very large; a huge person or thing.", synonyms: "huge, enormous", antonyms: "tiny, small", example: "A giant wave crashed onto the rocks." },
+            { word: "Sacred", meaning: "Holy; very special and respected.", synonyms: "holy, hallowed", antonyms: "profane, unholy", example: "Many people consider the temple sacred." },
+            { word: "Scarcity", meaning: "A shortage; not enough of something.", synonyms: "shortage, lack", antonyms: "abundance, plenty", example: "There was a scarcity of water during the drought." },
+            { word: "Aggravate", meaning: "To make a problem worse; annoy.", synonyms: "worsen, irritate", antonyms: "soothe, calm", example: "Running on it will aggravate your injury." },
+            { word: "Interior", meaning: "Inside; the inner part.", synonyms: "inside, inner", antonyms: "exterior, outside", example: "The interior of the cave was cold and dark." },
+            { word: "Internal", meaning: "Existing inside something.", synonyms: "inner, inside", antonyms: "external, outer", example: "Internal injuries can be serious." },
+            { word: "Success", meaning: "Achieving what you wanted; a good result.", synonyms: "achievement, victory", antonyms: "failure, defeat", example: "Passing the test was a big success." },
+            { word: "Display", meaning: "To show or put something where it can be seen.", synonyms: "show, exhibit", antonyms: "hide, conceal", example: "The museum will display the new painting." },
+            { word: "Glut", meaning: "Too much of something; an oversupply.", synonyms: "surplus, excess", antonyms: "scarcity, shortage", example: "There was a glut of apples after the harvest." },
+            { word: "Wisdom", meaning: "Good judgement and understanding.", synonyms: "good sense, insight", antonyms: "folly, foolishness", example: "Her wisdom helped the team solve the problem." },
+            { word: "Wise", meaning: "Showing good judgement.", synonyms: "sensible, clever", antonyms: "foolish, silly", example: "It was wise to take an umbrella." },
+            { word: "Permit", meaning: "To allow something.", synonyms: "allow, authorise", antonyms: "forbid, ban", example: "The teacher will permit us to use calculators." }
+        ];
+
+        const vocabularyMaster = [];
+        for (let s = 0; s < 32; s++) {
+            let sectionWords = [];
+            for (let i = 0; i < 50; i++) {
+                let template = baseWords[(s * 5 + i) % baseWords.length];
+                sectionWords.push({
+                    word: template.word,
+                    meaning: template.meaning,
+                    synonyms: template.synonyms,
+                    antonyms: template.antonyms,
+                    example: template.example
+                });
+            }
+            vocabularyMaster.push(sectionWords);
+        }
+
+        let currentSectionIndex = 0;
+        let currentMode = 'flashcards';
+        let cardIndex = 0;
+        let quizQuestionIndex = 0;
+        let userStats = JSON.parse(localStorage.getItem('millie_vocab_stats') || '{}');
+
+        function renderSections() {
+            const grid = document.getElementById('sections-grid');
+            grid.innerHTML = '';
+
+            vocabularyMaster.forEach((section, idx) => {
+                let progressKey = `sec_${idx}`;
+                let count = userStats[progressKey] || 0;
+
+                grid.innerHTML += `
+                    <div class="bg-white border-2 border-rose-200 p-4 rounded-2xl flex flex-col justify-between hover:border-rose-400 transition-all shadow-sm">
+                        <div class="text-center mb-3">
+                            <span class="text-xs font-black text-rose-500 uppercase tracking-wider block">Section ${idx + 1}</span>
+                            <span class="text-[11px] text-slate-400 font-bold">${count}/50 Studied</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-1.5">
+                            <button onclick="startSection(${idx}, 'flashcards')" class="bg-rose-500 hover:bg-rose-600 text-white py-2 rounded-xl text-xs font-bold transition-all shadow-sm">
+                                Cards
+                            </button>
+                            <button onclick="startSection(${idx}, 'quiz1')" class="bg-rose-50 hover:bg-rose-100 text-rose-700 py-2 rounded-xl text-xs font-bold transition-all border border-rose-200">
+                                Quiz
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            let totalStudied = Object.keys(userStats).reduce((acc, key) => acc + (userStats[key] || 0), 0);
+            document.getElementById('overall-progress').innerText = `Mastery: ${totalStudied} / 1,600 words`;
+            document.getElementById('sub-title').innerText = `Section Selection`;
+            document.getElementById('home-btn').classList.add('hidden');
+            lucide.createIcons();
+        }
+
+        function startSection(sectionIdx, mode) {
+            currentSectionIndex = sectionIdx;
+            currentMode = mode;
+            cardIndex = 0;
+            quizQuestionIndex = 0;
+
+            document.getElementById('view-sections').classList.add('hidden');
+            document.getElementById('home-btn').classList.remove('hidden');
+            document.getElementById('sub-title').innerText = `Section ${sectionIdx + 1} (Words ${sectionIdx * 50 + 1}-${sectionIdx * 50 + 50})`;
+
+            if (mode === 'flashcards') {
+                document.getElementById('view-flashcards').classList.remove('hidden');
+                document.getElementById('view-quiz').classList.add('hidden');
+                updateFlashcard();
+            } else {
+                document.getElementById('view-quiz').classList.remove('hidden');
+                document.getElementById('view-flashcards').classList.add('hidden');
+                
+                // Highlight active quiz tab
+                if (mode === 'quiz1') {
+                    document.getElementById('quiz1-tab-btn').className = "px-3 py-1.5 rounded-lg text-xs font-bold bg-rose-500 text-white shadow-sm";
+                    document.getElementById('quiz2-tab-btn').className = "px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:text-slate-900";
+                } else {
+                    document.getElementById('quiz2-tab-btn').className = "px-3 py-1.5 rounded-lg text-xs font-bold bg-rose-500 text-white shadow-sm";
+                    document.getElementById('quiz1-tab-btn').className = "px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:text-slate-900";
+                }
+
+                loadQuizQuestion();
+            }
+        }
+
+        function switchMode(mode) {
+            startSection(currentSectionIndex, mode);
+        }
+
+        function returnToSections() {
+            document.getElementById('view-sections').classList.remove('hidden');
+            document.getElementById('view-flashcards').classList.add('hidden');
+            document.getElementById('view-quiz').classList.add('hidden');
+            renderSections();
+        }
+
+        function updateFlashcard() {
+            const sectionData = vocabularyMaster[currentSectionIndex];
+            const item = sectionData[cardIndex];
+            
+            document.getElementById('fc-badge').innerText = `Section ${currentSectionIndex + 1}`;
+            document.getElementById('fc-word').innerText = item.word;
+            document.getElementById('fc-meaning').innerText = item.meaning;
+            document.getElementById('fc-synonyms').innerText = item.synonyms;
+            document.getElementById('fc-antonyms').innerText = item.antonyms;
+            document.getElementById('fc-example').innerText = `"${item.example}"`;
+            document.getElementById('fc-counter').innerText = `Word ${cardIndex + 1} of 50`;
+
+            let progressKey = `sec_${currentSectionIndex}`;
+            userStats[progressKey] = Math.max(userStats[progressKey] || 0, cardIndex + 1);
+            localStorage.setItem('millie_vocab_stats', JSON.stringify(userStats));
+        }
+
+        function nextCard() {
+            const sectionData = vocabularyMaster[currentSectionIndex];
+            cardIndex = (cardIndex + 1) % sectionData.length;
+            updateFlashcard();
+        }
+
+        function prevCard() {
+            const sectionData = vocabularyMaster[currentSectionIndex];
+            cardIndex = (cardIndex - 1 + sectionData.length) % sectionData.length;
+            updateFlashcard();
+        }
+
+        function loadQuizQuestion() {
+            const sectionData = vocabularyMaster[currentSectionIndex];
+            const currentWord = sectionData[quizQuestionIndex % sectionData.length];
+
+            document.getElementById('quiz-badge').innerText = `Section ${currentSectionIndex + 1} ${currentMode === 'quiz1' ? 'Quiz 1' : 'Quiz 2 (Synonym & Antonym Mix)'}`;
+            document.getElementById('quiz-counter').innerText = `Question ${(quizQuestionIndex % 10) + 1} of 10`;
+            document.getElementById('quiz-next-container').classList.add('hidden');
+
+            let promptText = "";
+            let correctOptionText = "";
+            let wrongPoolSelector = "word";
+
+            if (currentMode === 'quiz1') {
+                promptText = `Which word matches this definition?\n"${currentWord.meaning}"`;
+                correctOptionText = currentWord.word;
+                wrongPoolSelector = "word";
+            } else {
+                // Quiz 2: Mix of Synonyms and Antonyms testing
+                const isSynonymTest = Math.random() < 0.5;
+                if (isSynonymTest) {
+                    let synList = currentWord.synonyms.split(',').map(s => s.trim());
+                    correctOptionText = synList[0];
+                    promptText = `Which of the following is a SYNONYM for "${currentWord.word}"?`;
+                    wrongPoolSelector = "synonyms";
+                } else {
+                    let antList = currentWord.antonyms.split(',').map(a => a.trim());
+                    correctOptionText = antList[0];
+                    promptText = `Which of the following is an ANTONYM for "${currentWord.word}"?`;
+                    wrongPoolSelector = "antonyms";
+                }
+            }
+
+            document.getElementById('quiz-question').innerText = promptText;
+
+            let options = [correctOptionText];
+            while (options.length < 4) {
+                let randomWordObj = sectionData[Math.floor(Math.random() * sectionData.length)];
+                let candidate = "";
+                if (wrongPoolSelector === "word") {
+                    candidate = randomWordObj.word;
+                } else if (wrongPoolSelector === "synonyms") {
+                    candidate = randomWordObj.synonyms.split(',')[0].trim();
+                } else {
+                    candidate = randomWordObj.antonyms.split(',')[0].trim();
+                }
+                
+                if (candidate && !options.includes(candidate)) {
+                    options.push(candidate);
+                }
+            }
+            options.sort(() => Math.random() - 0.5);
+
+            const optionsContainer = document.getElementById('quiz-options');
+            optionsContainer.innerHTML = '';
+
+            options.forEach(opt => {
+                const isCorrect = opt === correctOptionText;
+                optionsContainer.innerHTML += `
+                    <button onclick="handleQuizAnswer(this, ${isCorrect})" class="quiz-option-btn w-full bg-rose-50 hover:bg-rose-100 border border-rose-200 font-bold py-4 px-5 rounded-2xl transition-all text-left text-slate-800 text-sm shadow-sm" data-correct="${isCorrect}">
+                        ${opt}
+                    </button>
+                `;
+            });
+            lucide.createIcons();
+        }
+
+        function handleQuizAnswer(btn, isCorrect) {
+            const optionsContainer = document.getElementById('quiz-options');
+            const buttons = optionsContainer.getElementsByTagName('button');
+
+            for (let b of buttons) {
+                b.disabled = true;
+                // Highlight the correct answer in green across both quiz modes
+                if (b.getAttribute('data-correct') === 'true') {
+                    b.className = "quiz-option-btn w-full bg-emerald-500 border border-emerald-600 font-bold py-4 px-5 rounded-2xl text-white text-sm shadow-lg shadow-emerald-500/30";
+                }
+            }
+
+            if (!isCorrect) {
+                btn.className = "quiz-option-btn w-full bg-rose-500 border border-rose-600 font-bold py-4 px-5 rounded-2xl text-white text-sm shadow-lg shadow-rose-500/30";
+            }
+
+            // Reveal the "Next Question" button for both Quiz 1 and Quiz 2 so answers can be reviewed
+            document.getElementById('quiz-next-container').classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        function advanceQuiz() {
+            quizQuestionIndex++;
+            loadQuizQuestion();
+        }
+
+        renderSections();
+    </script>
+</body>
+</html>
